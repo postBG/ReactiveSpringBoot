@@ -1,0 +1,7 @@
+server:
+  port: 7000
+
+spring:
+  data:
+    cassandra:
+      keyspace-name: ReactiveTest
