@@ -8,6 +8,6 @@ import org.springframework.data.cassandra.config.SchemaAction
 @Configuration
 class CassandraConfig: AbstractCassandraConfiguration() {
     override fun getKeyspaceName(): String = "ReactiveTest"
-    override fun getSchemaAction(): SchemaAction = SchemaAction.CREATE_IF_NOT_EXISTS
+    override fun getSchemaAction(): SchemaAction = SchemaAction.RECREATE
     override fun getEntityBasePackages(): Array<String> = arrayOf("com.example.reactive")
 }
