@@ -14,6 +14,7 @@ import org.springframework.web.reactive.function.server.RouterFunctions.route
 import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
 import reactor.core.publisher.Mono
+import java.util.*
 
 @Configuration
 class UserRoutingConfig {
@@ -21,6 +22,7 @@ class UserRoutingConfig {
     fun routes(userHandler: UserHandler): RouterFunction<ServerResponse> {
         return route(GET("/users"), HandlerFunction<ServerResponse>(userHandler::findAll))
                 .andRoute(POST("/users"), HandlerFunction<ServerResponse>(userHandler::save))
+                .andRoute(GET("/users/{id}"), HandlerFunction<ServerResponse>(userHandler::findById))
     }
 }
 
@@ -38,10 +40,16 @@ class UserHandler(val userRepository: UserRepository) {
             if (email.isNullOrBlank() or password.isNullOrBlank()) {
                 ServerResponse.badRequest().body(fromObject("email or password is empty"))
             } else {
-                userRepository.save(User(email!!, password!!))
+                this.userRepository.save(User(email!!, password!!))
                         .flatMap { ServerResponse.noContent().build() }
                         .switchIfEmpty(ServerResponse.status(HttpStatus.INTERNAL_SERVER_ERROR).build())
             }
         }
+    }
+
+    fun findById(request: ServerRequest): Mono<ServerResponse> {
+        return this.userRepository.findById(UUID.fromString(request.pathVariable("id")))
+                .flatMap { user -> ServerResponse.ok().body(Mono.just(user), User::class.java) }
+                .switchIfEmpty(ServerResponse.notFound().build())
     }
 }
