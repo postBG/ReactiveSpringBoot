@@ -1,7 +1,7 @@
-package com.example.reactive.user.controller
+package com.example.reactive.account.controller
 
-import com.example.reactive.user.models.User
-import com.example.reactive.user.repositories.UserRepository
+import com.example.reactive.account.models.Account
+import com.example.reactive.account.repositories.AccountRepository
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpStatus
@@ -17,19 +17,19 @@ import reactor.core.publisher.Mono
 import java.util.*
 
 @Configuration
-class UserRoutingConfig {
+class AccountRoutingConfig {
     @Bean
-    fun routes(userHandler: UserHandler): RouterFunction<ServerResponse> {
-        return route(GET("/users"), HandlerFunction<ServerResponse>(userHandler::findAll))
-                .andRoute(POST("/users"), HandlerFunction<ServerResponse>(userHandler::save))
-                .andRoute(GET("/users/{id}"), HandlerFunction<ServerResponse>(userHandler::findById))
+    fun routes(accountHandler: AccountHandler): RouterFunction<ServerResponse> {
+        return route(GET("/accounts"), HandlerFunction<ServerResponse>(accountHandler::findAll))
+                .andRoute(POST("/accounts"), HandlerFunction<ServerResponse>(accountHandler::save))
+                .andRoute(GET("/accounts/{id}"), HandlerFunction<ServerResponse>(accountHandler::findById))
     }
 }
 
 @Component
-class UserHandler(val userRepository: UserRepository) {
+class AccountHandler(val accountRepository: AccountRepository) {
     fun findAll(request: ServerRequest): Mono<ServerResponse> {
-        return ServerResponse.ok().body(this.userRepository.findAll(), User::class.java)
+        return ServerResponse.ok().body(this.accountRepository.findAll(), Account::class.java)
     }
 
     fun save(request: ServerRequest): Mono<ServerResponse> {
@@ -40,7 +40,7 @@ class UserHandler(val userRepository: UserRepository) {
             if (email.isNullOrBlank() or password.isNullOrBlank()) {
                 ServerResponse.badRequest().body(fromObject("email or password is empty"))
             } else {
-                this.userRepository.save(User(email!!, password!!))
+                this.accountRepository.save(Account(email!!, password!!))
                         .flatMap { ServerResponse.noContent().build() }
                         .switchIfEmpty(ServerResponse.status(HttpStatus.INTERNAL_SERVER_ERROR).build())
             }
@@ -48,8 +48,8 @@ class UserHandler(val userRepository: UserRepository) {
     }
 
     fun findById(request: ServerRequest): Mono<ServerResponse> {
-        return this.userRepository.findById(UUID.fromString(request.pathVariable("id")))
-                .flatMap { user -> ServerResponse.ok().body(Mono.just(user), User::class.java) }
+        return this.accountRepository.findById(UUID.fromString(request.pathVariable("id")))
+                .flatMap { user -> ServerResponse.ok().body(Mono.just(user), Account::class.java) }
                 .switchIfEmpty(ServerResponse.notFound().build())
     }
 }

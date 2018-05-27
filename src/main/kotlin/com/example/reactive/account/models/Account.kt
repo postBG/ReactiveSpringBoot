@@ -1,4 +1,4 @@
-package com.example.reactive.user.models
+package com.example.reactive.account.models
 
 import com.datastax.driver.core.utils.UUIDs
 import org.springframework.data.cassandra.core.mapping.Column
@@ -7,9 +7,9 @@ import org.springframework.data.cassandra.core.mapping.Table
 import java.util.*
 
 @Table
-data class User(@PrimaryKey val uid: UUID,
-                @Column val email: String,
-                @Column val password: String) {
+data class Account(@PrimaryKey val uid: UUID,
+                   @Column val email: String,
+                   @Column val password: String) {
     @Column
     val userName: String = email.split("@").first()
 
